@@ -1,0 +1,15 @@
+/* Framework slide: the two data tiles (embed, evolve) are canvas panels with a hairline
+   frame, sized like the images of the 2x2 grid. Tokens only. */
+/* every tile of the framework grid is the same 4:3 box, no taller than 30vh, so the
+   rows line up: the two canvas panels and the two photos */
+.slide[data-section="framework"] .slide-media.grid-2x2 > img,
+.slide-media.grid-2x2 > .stage-panel {
+  flex: 0 0 auto; width: min(calc(50% - 6px), calc(30vh * 4 / 3)); aspect-ratio: 4 / 3; height: auto; max-height: none;
+  position: relative; box-sizing: border-box; border: 1px solid var(--text); border-radius: 2px; overflow: hidden;
+}
+.stage-panel canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.slide[data-section="framework"] .slide-media.grid-2x2 > img { border: 0; }
+@media (min-width: 901px) {
+  body.is-capture .slide[data-section="framework"] .slide-media.grid-2x2 > img,
+  body.is-capture .slide-media.grid-2x2 > .stage-panel { width: min(calc(50% - 6px), 432px); }
+}

@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Evolving Dexterous Robots from Scratch</title>
+  <meta name="description" content="Here we evolve freeform robots to pick up, hold, rotate, and use diverse objects. We do not presuppose the presence, articulation, or geometry of any part of the body.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600&family=IBM+Plex+Sans:wght@200;300;400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="static/css/tokens.css">
+  <link rel="stylesheet" href="static/css/index.css">
+  <link rel="stylesheet" href="static/css/evolution.css">
+<link rel="stylesheet" href="static/css/genome.css">
+<link rel="stylesheet" href="static/css/interp.css">
+<link rel="stylesheet" href="static/css/latent.css">
+<link rel="stylesheet" href="static/css/results.css">
+<link rel="stylesheet" href="static/css/stages.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-nav">
+        <div class="topbar-rule"></div>
+        <a href="#"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 1.5h6l3 3v10h-9z"/><path d="M9.5 1.5v3h3"/><path d="M5.5 8h5M5.5 10.5h5"/></svg>Paper</a>
+        <a href="https://anonymous.4open.science/r/evo-dex-bots" rel="noopener"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 3.5 1.5 8l4 4.5M10.5 3.5 14.5 8l-4 4.5"/></svg>Code</a>
+      </div>
+    </div>
+    <div class="topbar-center">
+      <span>Anonymous authors</span>
+      <span>Under double-blind review</span>
+      <span>ICLR 2027</span>
+    </div>
+    <button class="menu-toggle" type="button" aria-label="Sections" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </header>
+  <nav class="menu" hidden>
+    <a href="#motivation"><span>01</span>Motivation</a>
+    <a href="#framework"><span>02</span>Framework</a>
+    <a href="#genome"><span>03</span>Genome</a>
+    <a href="#decoder"><span>04</span>Decoder</a>
+    <a href="#evolution"><span>05</span>Evolution</a>
+    <a href="#results"><span>06</span>Results</a>
+    <a href="#real-world"><span>07</span>Real world</a>
+    <a href="#discussion"><span>08</span>Discussion</a>
+    <a href="#references"><span>09</span>References</a>
+  </nav>
+  <main>
+<!-- section: 00_hero -->
+<section id="hero" class="hero">
+  <div class="hero-stage">
+    <video class="hero-video" autoplay muted loop playsinline poster="static/images/hero.jpg">
+      <source src="static/videos/hero.mp4" type="video/mp4">
+    </video>
+  </div>
+  <div class="hero-left">
+    <div class="hero-spine"></div>
+    <div class="hero-block">
+      <div class="hero-line"></div>
+      <h1 class="hero-title"><span class="big">Evolving</span><span class="big">Dexterous robots</span><span class="small">from</span><span class="big">scratch</span></h1>
+      <p class="hero-label">Abstract</p>
+      <!-- src: 0_Abstract.tex:4-39, shortened with the paper's own sentences -->
+      <p class="hero-text">Little is known about how to manually design agents capable of dexterous manipulation. Some design principles have been inferred from close examination of how animals manipulate objects, but these structures and behaviors have so far resisted biomimicry and may not be optimal for artificial machines.</p>
+      <p class="hero-text">Here we evolve freeform robots to pick up, hold, rotate, and use diverse objects. We do not presuppose the presence, articulation, or geometry of any part of the body. Winning designs were automatically converted into a manufacturable blueprint, printed, assembled and tested in the real world in a zero-shot manner.</p>
+    </div>
+  </div>
+  <div class="hero-edge"></div>
+  <nav class="hero-foot">
+    <a class="hero-foot-side" href="#"><span class="arrow">&#9665;</span>Paper PDF</a>
+    <div class="hero-foot-center">
+      <p class="hero-foot-label">Next &nbsp;&middot;&nbsp; 01 Motivation</p>
+      <div class="hero-dots">
+        <a href="#motivation" class="dot is-current" title="01 Motivation"></a>
+        <a href="#framework" class="dot" title="02 Framework"></a>
+        <a href="#genome" class="dot" title="03 Genome"></a>
+        <a href="#decoder" class="dot" title="04 Decoder"></a>
+        <a href="#evolution" class="dot" title="05 Evolution"></a>
+        <a href="#results" class="dot" title="06 Results"></a>
+        <a href="#real-world" class="dot" title="07 Real world"></a>
+        <a href="#discussion" class="dot" title="08 Discussion"></a>
+        <a href="#references" class="dot" title="09 References"></a>
+      </div>
+    </div>
+    <a class="hero-foot-side" href="#motivation">Motivation<span class="arrow">&#9655;</span></a>
+  </nav>
+</section>
+
+<!-- section: 10_motivation -->
+<section id="motivation" class="slide" data-section="motivation" data-num="01" data-name="Motivation">
+  <div class="slide-left">
+    <div class="slide-spine"></div>
+    <div class="slide-block">
+      <p class="eyebrow"><span class="num">01</span>Motivation</p>
+      <!-- src: 1_Intro.tex:10 -->
+      <h2 class="slide-title">Design robots automatically with minimal assumptions</h2>
+      <!-- src: 1_Intro.tex:5-8 -->
+      <p class="slide-text">A diversity of prehensile structures have evolved in animals to support effective object manipulation<sup class="cite"><a href="#ref-1">1</a></sup>. It may still be beneficial to mimic the evolutionary mechanisms responsible for the emergence, complexification, and diversification of nature's designs<sup class="cite"><a href="#ref-2">2</a></sup>.</p>
+      <!-- src: 1_Intro.tex:43-59 -->
+      <p class="slide-text">The most relevant prior work presupposed the shape and articulation of each finger and locked their position in plane about a 2D palm<sup class="cite"><a href="#ref-3">3</a></sup>, or added an anthropomorphic design template<sup class="cite"><a href="#ref-4">4</a></sup>.</p>
+      <!-- src: 1_Intro.tex:133-134 -->
+      <div class="slide-callout"><p>Here we show for the first time de novo manipulator design.</p></div>
+    </div>
+  </div>
+  <div class="slide-stage">
+    <div class="slide-media">
+      <img class="plate-img" src="static/images/fig1_tasks.jpg" alt="Evolving freeform manipulators: for each task the design, the simulation and the real robot, around the latent space" loading="lazy">
+    </div>
+    <!-- src: fig-evolution.tex:6-12 -->
+    <p class="caption"><span class="fig">Overview</span><strong>Evolving freeform manipulators.</strong> Under different selection pressures and environmental conditions, unique morphologies emerged to rotate, retrieve, flip, hold, pick up, and hang from objects.</p>
+  </div>
+</section>
+
+<!-- section: 20_framework -->
+<section id="framework" class="slide alt" data-section="framework" data-num="02" data-name="Framework">
+  <div class="slide-left">
+    <div class="slide-spine"></div>
+    <div class="slide-block">
+      <p class="eyebrow"><span class="num">02</span>Framework</p>
+      <!-- src: the four stages of 0_Abstract.tex:28-37, named with the authors' four words -->
+      <h2 class="slide-title">Embed, evolve, train, deploy</h2>
+      <!-- src: 0_Abstract.tex:28-31 -->
+      <p class="slide-text"><b>Embed</b> Contrastive learning creates a highly searchable genetic embedding of design space.</p>
+      <!-- src: 0_Abstract.tex:34; 2_Methods.tex:184 -->
+      <p class="slide-text"><b>Evolve</b> Evolutionary strategies find good designs in that latent space.</p>
+      <!-- src: 0_Abstract.tex:35; 2_Methods.tex:155-162 -->
+      <p class="slide-text"><b>Train</b> Reinforcement learning trains each evolved design in simulation.</p>
+      <!-- src: 0_Abstract.tex:37; 2_Methods.tex:209; the blueprint citation from 1_Intro.tex:77 -->
+      <p class="slide-text"><b>Deploy</b> Winning designs are converted into a manufacturable blueprint<sup class="cite"><a href="#ref-5">5</a></sup>, printed, assembled and deployed zero-shot.</p>
+      <!-- src: 0_Abstract.tex:17-18 -->
+      <div class="slide-callout"><p>Unlike other approaches to optimizing robot hands, we do not presuppose the presence, articulation, or geometry of any part of the body.</p></div>
+    </div>
+  </div>
+  <div class="slide-stage">
+    <div class="slide-media grid-2x2">
+      <div class="stage-panel stage-embed" data-src="static/data/latent_probe.json" role="img" aria-label="Embed: the latent genome of the probe hands on a sphere, similar body plans close together"><canvas></canvas></div>
+      <div class="stage-panel stage-evolve" data-src="static/data/evolution.json" role="img" aria-label="Evolve: the sampled genotypes generation by generation, the mean path and the best design"><canvas></canvas></div>
+      <img src="static/images/stage_train.jpg" alt="Train: the didactyl rotator trained in simulation" loading="lazy">
+      <img src="static/images/stage_deploy.jpg" alt="Deploy: the printed rotator tested in the real world" loading="lazy">
+    </div>
+    <!-- src: 4_Discussion.tex:16-17 (similar body plans genetically closer); 2_Methods.tex:184-186 (latent space, highest fitness); 2_Methods.tex:155 (simulation); 0_Abstract.tex:37 (printed, tested in the real world) -->
+    <p class="caption"><span class="fig">Stages</span><strong>One image per stage.</strong> Top left, embed: the latent genome, in which similar body plans are genetically closer; top right, evolve: the trajectory across the latent space toward the highest fitness; bottom left, train: the didactyl rotator in simulation; bottom right, deploy: the same design printed and tested in the real world.</p>
+  </div>
+</section>
+
+<!-- section: 30_genome -->
+<section id="genome" class="slide" data-section="genome" data-num="03" data-name="Genome">
+  <div class="slide-left">
+    <div class="slide-spine"></div>
+    <div class="slide-block">
+      <p class="eyebrow"><span class="num">03</span>Genome</p>
+      <!-- src: 2_Methods.tex:39 (section title "Latent Space (The Genome)") -->
+      <h2 class="slide-title">The latent genome</h2>
+      <!-- src: 2_Methods.tex:51-55 -->
+      <p class="slide-text">The voxel grid was encoded by a <!-- src: 2_Methods.tex:51 -->3D convolutional network<sup class="cite"><a href="#ref-6">6</a></sup> and the kinematic tree by a graph network<sup class="cite"><a href="#ref-7">7</a></sup>, combined into a single latent vector z and normalized onto a hypersphere<sup class="cite"><a href="#ref-8">8</a></sup>.</p>
+      <!-- src: 2_Methods.tex:72, 80-88 -->
+      <p class="slide-text"><!-- src: 2_Methods.tex:72 -->Two million example body plans were generated. The contrastive term (NT-Xent loss<sup class="cite"><a href="#ref-9">9</a></sup>) brings each design and a morphologically similar counterpart, made by rescaling, reorienting, repositioning or slightly deforming it, closer together and farther away from other examples.</p>
+      <!-- src: 1_Intro.tex:108-114 -->
+      <div class="slide-callout"><p>Here, we use contrastive learning<sup class="cite"><a href="#ref-9">9</a>,<a href="#ref-8">8</a>,<a href="#ref-10">10</a></sup> to project morphospace onto a genetic hypersphere, which yields a phenotypically coherent, and more easily searchable, latent manifold.</p></div>
+    </div>
+  </div>
+  <div class="slide-stage">
+    <div class="slide-media">
+      <!-- The topology probe of the latent ablation, drawn from the handoff's UMAP embeddings
+           (materials/latent). Labels are the figure's own; latent.js draws it, latent.css styles it. -->
+      <div class="lp" data-src="static/data/latent_probe.json">
+        <div class="lp-panel"><canvas></canvas><span class="lp-label"><b>A</b>Ours</span><p class="lp-key lp-key-topologies"></p></div>
+        <div class="lp-panel"><canvas></canvas><span class="lp-label"><b>B</b>w/o z &isin; S<sup>31</sup></span><p class="lp-key"><span><i class="lp-dot"></i>canonical</span><span><i class="lp-ring"></i>rotated</span><span><i class="lp-line"></i>same design</span></p></div>
+        <div class="lp-panel"><canvas></canvas><span class="lp-label"><b>C</b>w/o L<sub>con</sub></span></div>
+        <div class="lp-panel"><canvas></canvas><span class="lp-label"><b>D</b>VAE</span></div>
+      </div>
+    </div>
+    <p class="lp-readout"></p>
+    <!-- src: fig-latent-ablation.tex:5-6, 21-23 -->
+    <p class="caption"><span class="fig">Latent space</span><strong>Genetic coherence.</strong> With the contrastive loss, rotated copies of <!-- src: fig-latent-ablation.tex:6 -->ten thousand pentadactyl morphologies remain close to their originals in the UMAP<sup class="cite"><a href="#ref-11">11</a></sup> projection (A-B); without it, the two views separate (C); in the VAE, rotated copies can appear far from their originals (D).</p>
+  </div>
+</section>
+
+<section id="genome-2" class="slide" data-section="genome" data-num="03" data-name="Genome">
+  <div class="slide-left">
+    <div class="slide-spine"></div>
+    <div class="slide-block">
+      <p class="eyebrow"><span class="num">03</span>Genome</p>
+      <!-- src: 3_Results.tex:26 -->
+      <h2 class="slide-title">Smoothness and coherence</h2>
+      <!-- src: 3_Results.tex:26-35 -->
+      <p class="slide-text">In a test set of <!-- src: 3_Results.tex:27 -->5000 unique body plans, every augmented copy and its original were nearest genetic neighbors (recall <!-- src: 3_Results.tex:33 -->100%), and topology k-NN accuracy was <!-- src: 3_Results.tex:35 -->91%.</p>
+      <!-- src: 3_Results.tex:37-49 -->
+      <p class="slide-text">Genetic distance from the original correlated with how many distal segments were amputated (edit-distance correlation <!-- src: 3_Results.tex:44 -->ρ = 0.97); decoded designs had the expected number of appendages and joints (reconstruction accuracy <!-- src: 3_Results.tex:46 -->98%) and stayed within the voxel grid with nonoverlapping appendages (validity <!-- src: 3_Results.tex:48 -->81%).</p>
+      <!-- src: 3_Results.tex:239-241 -->
+      <div class="slide-callout"><p>Without contrastive learning, winning designs were significantly worse, and the VAE<sup class="cite"><a href="#ref-12">12</a>,<a href="#ref-13">13</a>,<a href="#ref-14">14</a>,<a href="#ref-15">15</a></sup> suffered posterior collapse.</p></div>
+    </div>
+  </div>
+  <div class="slide-stage">
+    <div class="slide-media">
+      <!-- The paper's interpolation grid as an animation (materials/interp: the handoff's 5 x 5 slerp
+           grid, byte-identical to the figure). A playhead walks the grid from the four corners inward;
+           the current decoded design is shown large over its latent barcode. Every word is from the
+           figure caption or a field name of the grid; interp.js drives it, interp.css styles it. -->
+      <div class="ip" data-interp-panel data-json="static/data/interp.json" data-tiles="static/images/interp/tiles/" data-big="static/images/interp/big/">
+        <div class="ip-head">
+          <span class="ip-label">slerp</span>
+          <span class="ip-label ip-live" data-role="cell"></span>
+          <span class="ip-label">latent genotype</span>
+        </div>
+        <div class="ip-body">
+          <div class="ip-grid-wrap">
+            <div class="ip-grid" data-role="grid"><svg class="ip-overlay" data-role="overlay" aria-hidden="true"></svg></div>
+          </div>
+          <div class="ip-view">
+            <div class="ip-big" data-role="big" role="img" aria-label="decoded design"><img alt=""><img alt=""></div>
+            <svg class="ip-barcode" data-role="barcode" role="img" aria-label="The latent genotype as a double barcode"></svg>
+          </div>
+        </div>
+        <div class="ip-foot">
+          <button class="ip-play" type="button" data-role="play" aria-label="Play">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path class="ip-icon-play" d="M4 2.5v11l9-5.5z"/><path class="ip-icon-pause" d="M4.5 3v10M11.5 3v10"/></svg>
+          </button>
+          <div class="ip-scrub" data-role="scrub" role="slider" tabindex="0" aria-label="Spherical linear interpolation" aria-valuemin="0" aria-valuemax="26" aria-valuenow="0">
+            <span class="ip-scrub-line"></span><span class="ip-scrub-done" data-role="done"></span><span class="ip-scrub-head" data-role="head"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- src: fig-latent-interp.tex:6-12 -->
+    <p class="caption"><span class="fig">Interpolation</span><strong>Genetic interpolation between <!-- src: fig-latent-interp.tex:6 -->four evolved manipulators.</strong> Spherical linear interpolation (slerp) between a retriever (top left), a rotator (top right), a picker (bottom right), and a hanger (bottom left); the latent genotype below each decoded design is visualized as a double barcode.</p>
+  </div>
+</section>
+
+<!-- section: 40_decoder -->
+<section id="decoder" class="slide alt" data-section="decoder" data-num="04" data-name="Decoder">
+  <div class="slide-left">
+    <div class="slide-spine"></div>
+    <div class="slide-block">
+      <p class="eyebrow"><span class="num">04</span>Decoder</p>
+      <!-- src: fig-development.tex:6; 1_Intro.tex:124 -->
+      <h2 class="slide-title">The developmental decoder</h2>
+      <!-- src: 2_Methods.tex:22-27 -->
+      <p class="slide-text">Designs were parameterized by a root and up to <!-- src: 2_Methods.tex:24 -->five appendages that may grow outward from any point along the edge of the root, with up to <!-- src: 2_Methods.tex:26 -->25 joints, <!-- src: 2_Methods.tex:27 -->39 root variables and <!-- src: 2_Methods.tex:27 -->12 variables per segment.</p>
+      <!-- src: 8_Appendix.tex:492-494, 499-507 -->
+      <p class="slide-text">A design is written as a sequence of tokens: first the root, then each segment, one appendage after another, each variable cut into <!-- src: 8_Appendix.tex:507 -->8 to 128 bins by its sensitivity.</p>
+      <!-- src: 2_Methods.tex:67-68 -->
+      <div class="slide-callout"><p>During body generation, a grammar masks erroneous tokens such that every body is decoded from a complete and valid set of morphological parameters.</p></div>
+    </div>
+  </div>
+  <div class="slide-stage">
+    <div class="slide-media">
+      <img class="plate-img" src="static/images/fig2_decoder.png" alt="Latent genome and developmental decoder: the encoder and decoder, the growth steps, the token sequence and the growing body" loading="lazy">
+    </div>
+    <!-- src: fig-development.tex:6-11 -->
+    <p class="caption"><span class="fig">Decoder</span><strong>Latent genome and developmental decoder.</strong> Morphologies were embedded on a latent manifold (A) and autoregressively decoded back to morphospace (B) through a developmental program (C-G) that translates design tokens (H) into articulated bodies (I-L).</p>
+  </div>
+</section>
+
+<section id="decoder-2" class="slide alt" data-section="decoder" data-num="04" data-name="Decoder">
+  <div class="slide-left">
+    <div class="slide-spine"></div>
+    <div class="slide-block">
+      <p class="eyebrow"><span class="num">04</span>Decoder</p>
+      <!-- src: 1_Intro.tex:125 -->
+      <h2 class="slide-title">One body part after another</h2>
+      <!-- src: 2_Methods.tex:63-65; 8_Appendix.tex:516-517 -->
+      <p class="slide-text">An autoregressive transformer<sup class="cite"><a href="#ref-16">16</a></sup> conditioned on the latent genotype predicts the sequence one token at a time; a linear layer turns the latent genome z into <!-- src: 8_Appendix.tex:516 -->eight vectors, and every layer of the transformer attends to them.</p>
+      <!-- src: 1_Intro.tex:124-126; 8_Appendix.tex:27-28, 493 -->
+      <p class="slide-text">The developmental model grows one body part after another, ensuring validity at each step: the root first, then one appendage from the tip of each built spoke, a chain of segments that never branches.</p>
+    </div>
+  </div>
+  <div class="slide-stage">
+    <!-- The genome panel, a grammar tree of the decoder's steps: data from
+         static/data/genome_d06.json (materials/genome: per step the candidate tokens, the ones the
+         grammar admits, the chosen one), growth frames from static/images/growth/d06_NNN.webp
+         (materials/hero, one frame per finished segment), the design still as the fallback.
+         Every word inside is a field name or a token name of the paper (Appendix, design-space
+         table; the decoder figure legend). genome.js drives it; genome.css styles it. -->
+    <figure class="gp-figure">
+      <div class="genome-panel" data-genome-panel data-json="static/data/genome_d06.json" data-frames="static/images/growth/d06_">
+        <div class="gp-head">
+          <span class="gp-label gp-genome"><svg class="gp-barcode" data-role="barcode" viewBox="0 0 320 140" role="img" aria-label="The 32 numbers of the latent genome as a barcode"></svg>Latent genome z</span>
+          <p class="gp-field" data-role="field"><span>begin</span></p>
+          <span class="gp-label">Design tokens <span class="gp-live" data-role="count">1 / 236</span></span>
+        </div>
+        <div class="gp-body">
+          <div class="gp-frame">
+            <img data-role="frame" src="static/images/design_rotate.jpg" alt="The didactyl rotator growing from its genome">
+            <img data-role="frame-2" src="static/images/design_rotate.jpg" alt="" aria-hidden="true">
+          </div>
+          <div class="gp-chain" data-role="chain" role="img" aria-label="The candidate tokens of each decoding step, the ones the grammar masks struck through, the chosen one filled">
+            <div class="gp-track" data-role="track"></div>
+          </div>
+        </div>
+        <div class="gp-stream">
+          <svg class="gp-tokens" data-role="stream" role="img" aria-label="The 236 design tokens in decoder order"></svg>
+          <ul class="gp-legend">
+            <li><i class="gp-key is-root"></i>root</li>
+            <li><i class="gp-key is-app"></i>appendage</li>
+            <li><i class="gp-key is-app-begin"></i>appendage begin</li>
+            <li><i class="gp-key is-app-next"></i>appendage next</li>
+            <li><i class="gp-key is-begin"></i><i class="gp-key is-end"></i>begin / end</li>
+          </ul>
+        </div>
+        <div class="gp-foot">
+          <button class="gp-play" type="button" data-role="play" aria-label="Play">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path class="gp-icon-play" d="M4 2.5v11l9-5.5z"/><path class="gp-icon-pause" d="M4.5 3v10M11.5 3v10"/></svg>
+          </button>
+          <div class="gp-scrub" data-role="scrub" role="slider" tabindex="0" aria-label="Decoded tokens" aria-valuemin="0" aria-valuemax="235" aria-valuenow="0">
+            <span class="gp-scrub-line"></span><span class="gp-scrub-done" data-role="done"></span><span class="gp-scrub-head" data-role="head"></span>
+          </div>
+        </div>
+      </div>
+      <!-- src: fig-development.tex:6; 8_Appendix.tex:492-497; 3_Results.tex:80 (the didactyl rotator) -->
+      <figcaption class="caption"><span class="fig">Didactyl rotator</span><strong>Latent genome and developmental decoder.</strong> A design is written as a sequence of tokens, first the root, then each segment, one appendage after another; a control token before each segment says whether the segment starts a new appendage or extends the current one, and a final token ends the sequence.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- section: 50_evolution -->
+<section id="evolution" class="slide" data-section="evolution" data-num="05" data-name="Evolution">
+  <div class="slide-left">
+    <div class="slide-spine"></div>
+    <div class="slide-block">
+      <p class="eyebrow"><span class="num">05</span>Evolution</p>
+      <!-- src: 0_Abstract.tex:34-35 -->
+      <h2 class="slide-title">Evolve, then train each design</h2>
+      <!-- src: 2_Methods.tex:180-182; 8_Appendix.tex:619; table_cmaes_hyperparameters.tex:11-12 -->
+      <p class="slide-text">Following prior work<sup class="cite"><a href="#ref-13">13</a></sup>, robots are designed by CMA-ES<sup class="cite"><a href="#ref-17">17</a>,<a href="#ref-18">18</a></sup> in the latent space, with a population size of <!-- src: table_cmaes_hyperparameters.tex:11 -->32 and an initial step size of <!-- src: table_cmaes_hyperparameters.tex:12 -->0.25; every sample is projected onto the sphere before decoding.</p>
+      <!-- src: 2_Methods.tex:155, 161-162 -->
+      <p class="slide-text">A control policy is then trained from scratch for each design with PPO<sup class="cite"><a href="#ref-19">19</a></sup> in Isaac Lab<sup class="cite"><a href="#ref-20">20</a></sup> across thousands of parallel environments.</p>
+      <!-- src: 2_Methods.tex:167-168 -->
+      <div class="slide-callout"><p>After training, the optimized policy is replayed without exploration noise for a fixed window, and fitness is the average reward achieved across environments.</p></div>
+    </div>
+  </div>
+  <div class="slide-stage">
+    <div class="slide-media">
+      <!-- One CMA-ES campaign record (materials/evolution, from the lab's cma_trajectory.npz):
+           the samples on the plane of their first two principal components, the distribution
+           mean, and the best fitness so far; evolution.js draws it, evolution.css sizes it. -->
+      <div class="ev" data-src="static/data/evolution.json"><canvas></canvas></div>
+    </div>
+    <!-- src: fig-fitness-curves.tex:6; 3_Results.tex:61-69; 2_Methods.tex:184-188; table_cmaes_hyperparameters.tex:11; generations from cma_trajectory.npz -->
+    <p class="caption"><span class="fig">Evolution</span><strong>The evolution of rotators.</strong> One evolutionary trial of the rotate task, population size <!-- src: table_cmaes_hyperparameters.tex:11 -->32 over <!-- src: cma_trajectory.npz -->100 generations: every sampled genotype in the latent space, the distribution mean moving across it, and the best fitness so far against the anthropomorphic baseline<sup class="cite"><a href="#ref-21">21</a></sup> and the prior state-of-the-art<sup class="cite"><a href="#ref-3">3</a></sup>.</p>
+  </div>
+</section>
+<section id="evolution-2" class="slide" data-section="evolution" data-num="05" data-name="Evolution">
+  <div class="slide-left">
+    <div class="slide-spine"></div>
+    <div class="slide-block">
+      <p class="eyebrow"><span class="num">05</span>Evolution</p>
+      <!-- src: 1_Intro.tex:78; 2_Methods.tex:209 -->
+      <h2 class="slide-title">Print, assemble, deploy zero-shot</h2>
+      <!-- src: 2_Methods.tex:124-140 -->
+      <p class="slide-text">Each design is converted into a manufacturable form<sup class="cite"><a href="#ref-5">5</a></sup>: a printable mesh<sup class="cite"><a href="#ref-22">22</a></sup>, servos at every joint, cavities for each motor and bracket, and a self-collision sweep of every joint that sets its limit.</p>
+      <!-- src: 2_Methods.tex:201-202, 206-209; 8_Appendix.tex:719 -->
+      <p class="slide-text">Body parts are 3D-printed in PLA and the servos are attached by screws into heat inserts. The policy is distilled into a proprioceptive controller, finetuned under domain randomization<sup class="cite"><a href="#ref-23">23</a></sup>, and deployed zero-shot at <!-- src: 2_Methods.tex:209 -->30 Hz.</p>
+      <!-- src: 2_Methods.tex:200 -->
+      <div class="slide-callout"><p>Winning designs were fabricated directly from their automatically generated blueprints.</p></div>
+    </div>
+  </div>
+  <div class="slide-stage">
+    <div class="slide-media">
+      <img class="plate-img" src="static/images/five_designs.jpg" alt="The five physical designs" loading="lazy">
+    </div>
+    <!-- src: z_app_objects_hands.tex:4-7 -->
+    <p class="caption"><span class="fig">Printed</span><strong>The <!-- src: z_app_objects_hands.tex:4 -->five physical designs.</strong> From left to right: the retriever (purple), the didactyl rotator (grey), the picker (white), the <!-- src: z_app_objects_hands.tex:7 -->4-appendage rotator (grey) and the hanger (tan).</p>
+  </div>
+</section>
+
+<!-- section: 60_results -->
+<section id="results" class="slide alt" data-section="results" data-num="06" data-name="Results">
+  <div class="slide-left">
+    <div class="slide-spine"></div>
+    <div class="slide-block">
+      <p class="eyebrow"><span class="num">06</span>Results</p>
+      <!-- src: 3_Results.tex:52 -->
+      <h2 class="slide-title">Rotate</h2>
+      <!-- src: 3_Results.tex:63-69 -->
+      <p class="slide-text"><!-- src: 3_Results.tex:63 -->Five evolutionary trials were compared against the anthropomorphic LEAP hand<sup class="cite"><a href="#ref-21">21</a></sup> and the manipulators that until now represented the state of the art<sup class="cite"><a href="#ref-3">3</a></sup>.</p>
+      <!-- src: 3_Results.tex:80-84 -->
+      <p class="slide-text">After finetuning, the didactyl robot rotated objects at <!-- src: 3_Results.tex:80 -->3.66 rad/s in simulation, compared to <!-- src: 3_Results.tex:82 -->2.09 rad/s on the anthropomorphic hand<sup class="cite"><a href="#ref-21">21</a></sup> and <!-- src: 3_Results.tex:84 -->3.3 rad/s with privileged information<sup class="cite"><a href="#ref-3">3</a></sup>.</p>
+      <!-- src: 3_Results.tex:86-89 -->
+      <p class="slide-text">Deployed zero-shot, it rotated unseen objects at <!-- src: 3_Results.tex:87 -->1.39 rad/s, almost twice the <!-- src: 3_Results.tex:88 -->0.74 rad/s reported until now<sup class="cite"><a href="#ref-3">3</a></sup>; the tetradactyl robot, <!-- src: 3_Results.tex:89 -->1.78 rad/s.</p>
+      <!-- src: 3_Results.tex:61 -->
+      <div class="slide-callout"><p>Fitness was the net rotation rate of the object over a <!-- src: 3_Results.tex:61 -->30 second evaluation period.</p></div>
+    </div>
+  </div>
+  <div class="slide-stage">
+    <div class="slide-media">
+      <img class="render" src="static/images/design_rotate.jpg" alt="The evolved didactyl rotator" loading="lazy">
+      <video class="clip" autoplay muted loop playsinline preload="metadata" poster="static/videos/sim/rotate.jpg"><source src="static/videos/sim/rotate.mp4" type="video/mp4"></video>
+    </div>
+    <!-- src: fig-robot-gallery-rot.tex:7-10 -->
+    <p class="caption"><span class="fig">Rotate</span><strong>The evolved didactyl rotator.</strong> Two functional appendages and a third, very short vestigial appendage that did not contribute to object rotation.</p>
+  </div>
+</section>
+
+<section id="results-2" class="slide alt" data-section="results" data-num="06" data-name="Results">
+  <div class="slide-left">
+    <div class="slide-spine"></div>
+    <div class="slide-block">
+      <p class="eyebrow"><span class="num">06</span>Results</p>
+      <!-- src: 3_Results.tex:115 -->
+      <h2 class="slide-title">Pick</h2>
+      <!-- src: 3_Results.tex:120-128 -->
+      <p class="slide-text">Robots were mounted above a tabletop with their root facing downward and evolved to pick up objects. <!-- src: 3_Results.tex:128 -->A single evolutionary trial was conducted; the winning design picked up and held onto objects <!-- src: 3_Results.tex:128 -->99% of the time.</p>
+      <!-- src: 3_Results.tex:130-134 -->
+      <p class="slide-text">Deployed zero-shot across <!-- src: 3_Results.tex:132 -->24 previously unseen objects, it succeeded in <!-- src: 3_Results.tex:133 -->eight out of ten attempts on average, and picked up every object at least once except the heaviest, a <!-- src: 3_Results.tex:134 -->687 g salt container.</p>
+      <!-- src: 3_Results.tex:124-125 -->
+      <div class="slide-callout"><p>Highly fit robots pick the object and keep it from falling under external perturbations.</p></div>
+    </div>
+  </div>
+  <div class="slide-stage">
+    <div class="slide-media">
+      <img class="render" src="static/images/design_pick.jpg" alt="The evolved picker" loading="lazy">
+      <video class="clip" autoplay muted loop playsinline preload="metadata" poster="static/videos/sim/pick.jpg"><source src="static/videos/sim/pick.mp4" type="video/mp4"></video>
+    </div>
+    <!-- src: fig-robot-gallery-other.tex:5-7 -->
+    <p class="caption"><span class="fig">Pick</span><strong>An evolved picker.</strong> Evolved, trained, and realized to pick objects off a surface.</p>
+  </div>
+</section>
+
+<section id="results-3" class="slide alt" data-section="results" data-num="06" data-name="Results">
+  <div class="slide-left">
+    <div class="slide-spine"></div>
+    <div class="slide-block">
+      <p class="eyebrow"><span class="num">06</span>Results</p>
+      <!-- src: 3_Results.tex:139 -->
+      <h2 class="slide-title">Hang</h2>
+      <!-- src: 3_Results.tex:143 -->
+      <p class="slide-text">Robots were positioned near a horizontal bar and evolved to wrap around it such that, when released, the body hangs with a <!-- src: 3_Results.tex:143 -->500 g weight suspended below it.</p>
+      <!-- src: 3_Results.tex:146-155 -->
+      <p class="slide-text">The winning design held on for the entire <!-- src: 3_Results.tex:146 -->20 second evaluation period in <!-- src: 3_Results.tex:150 -->99.9% of training episodes, using half the torque of designs found earlier in evolution. Deployed zero-shot, it gripped and hung from a bar under a <!-- src: 3_Results.tex:155 -->500 g load.</p>
+      <!-- src: 3_Results.tex:146 -->
+      <div class="slide-callout"><p>Fitness was based on how long the robot stayed on the bar, discounted by the motor torque expended.</p></div>
+    </div>
+  </div>
+  <div class="slide-stage">
+    <div class="slide-media">
+      <img class="render" src="static/images/design_hang.jpg" alt="The evolved hanger" loading="lazy">
+      <video class="clip" autoplay muted loop playsinline preload="metadata" poster="static/videos/sim/hang.jpg"><source src="static/videos/sim/hang.mp4" type="video/mp4"></video>
+    </div>
+    <!-- src: fig-robot-gallery-other.tex:5-8 -->
+    <p class="caption"><span class="fig">Hang</span><strong>An evolved hanger.</strong> Evolved, trained, and realized to hang from a horizontal bar with a weight suspended below.</p>
+  </div>
+</section>
+
+<section id="results-4" class="slide alt" data-section="results" data-num="06" data-name="Results">
+  <div class="slide-left">
+    <div class="slide-spine"></div>
+    <div class="slide-block">
+      <p class="eyebrow"><span class="num">06</span>Results</p>
+      <!-- src: 3_Results.tex:158 -->
+      <h2 class="slide-title">Retrieve</h2>
+      <!-- src: 3_Results.tex:161-162 -->
+      <p class="slide-text">Robots were mounted at the opening of a narrow horizontal pipe containing a small cube and evolved to reach into the pipe and pull the cube out.</p>
+      <!-- src: 3_Results.tex:164-165 -->
+      <p class="slide-text">The winning design, which was successful in every training episode, was realized, finetuned, and deployed zero-shot. It was equally successful in reality.</p>
+    </div>
+  </div>
+  <div class="slide-stage">
+    <div class="slide-media">
+      <img class="render" src="static/images/design_retrieve.jpg" alt="The evolved retriever" loading="lazy">
+      <video class="clip" autoplay muted loop playsinline preload="metadata" poster="static/videos/sim/retrieve.jpg"><source src="static/videos/sim/retrieve.mp4" type="video/mp4"></video>
+    </div>
+    <!-- src: fig-robot-gallery-other.tex:5-10 -->
+    <p class="caption"><span class="fig">Retrieve</span><strong>An evolved retriever.</strong> Evolved, trained, and realized to retrieve objects from within a narrow pipe.</p>
+  </div>
+</section>
+
+<section id="results-5" class="slide alt" data-section="results" data-num="06" data-name="Results">
+  <div class="slide-left">
+    <div class="slide-spine"></div>
+    <div class="slide-block">
+      <p class="eyebrow"><span class="num">06</span>Results</p>
+      <!-- src: 3_Results.tex:169 -->
+      <h2 class="slide-title">Flip</h2>
+      <!-- src: 3_Results.tex:172-175 -->
+      <p class="slide-text">Robots were mounted above a table and evolved to flip a cube over, again and again, in a randomly chosen direction, as quickly as possible. Each flip moves the cube one edge length along the table, so the mounted robot must also pull the cube back within reach to keep flipping it.</p>
+      <!-- src: 3_Results.tex:180 -->
+      <p class="slide-text">The winning design achieved <!-- src: 3_Results.tex:180 -->7.75 full rotations in 60 seconds.</p>
+      <!-- src: 3_Results.tex:177 -->
+      <div class="slide-callout"><p>Fitness was the number of full rotations of the cube over a <!-- src: 3_Results.tex:177 -->60 second evaluation period.</p></div>
+    </div>
+  </div>
+  <div class="slide-stage">
+    <div class="slide-media">
+      <img class="render" src="static/images/design_flip.jpg" alt="The evolved flipping design" loading="lazy">
+      <video class="clip" autoplay muted loop playsinline preload="metadata" poster="static/videos/sim/flip.jpg"><source src="static/videos/sim/flip.mp4" type="video/mp4"></video>
+    </div>
+    <!-- src: fig-evolution.tex:7-12; 3_Results.tex:172 -->
+    <p class="caption"><span class="fig">Flip</span><strong>Evolved to flip.</strong> A unique morphology emerged to flip a cube over, again and again, in a randomly chosen direction.</p>
+  </div>
+</section>
+
+<section id="results-6" class="slide alt" data-section="results" data-num="06" data-name="Results">
+  <div class="slide-left">
+    <div class="slide-spine"></div>
+    <div class="slide-block">
+      <p class="eyebrow"><span class="num">06</span>Results</p>
+      <!-- src: 3_Results.tex:185 -->
+      <h2 class="slide-title">Hold</h2>
+      <!-- src: 3_Results.tex:189-190 -->
+      <p class="slide-text">The manipulator was mounted on the end of an arm and evolved to hold a hammer by its handle as the arm swings the hammer up and down.</p>
+      <!-- src: 3_Results.tex:196-199 -->
+      <p class="slide-text">The winning design dropped the hammer in just <!-- src: 3_Results.tex:196 -->3% of episodes. It was the only winning design with a pentadactyl morphology that evolved across the six task environments.</p>
+      <!-- src: 3_Results.tex:193 -->
+      <div class="slide-callout"><p>Fitness was how little the hammer moved relative to its mounted root during arm swinging and under external perturbations.</p></div>
+    </div>
+  </div>
+  <div class="slide-stage">
+    <div class="slide-media">
+      <img class="render" src="static/images/design_hold.jpg" alt="The evolved pentadactyl holding design" loading="lazy">
+      <video class="clip" autoplay muted loop playsinline preload="metadata" poster="static/videos/sim/hold.jpg"><source src="static/videos/sim/hold.mp4" type="video/mp4"></video>
+    </div>
+    <!-- src: fig-evolution.tex:7-13; 3_Results.tex:189-190 -->
+    <p class="caption"><span class="fig">Hold</span><strong>Evolved to hold.</strong> A unique morphology emerged to hold a hammer by its handle as the arm swings the hammer up and down.</p>
+  </div>
+</section>
+
+<section id="results-7" class="slide alt" data-section="results" data-num="06" data-name="Results">
+  <div class="slide-left">
+    <div class="slide-spine"></div>
+    <div class="slide-block">
+      <p class="eyebrow"><span class="num">06</span>Results</p>
+      <!-- src: 3_Results.tex:209 -->
+      <h2 class="slide-title">Multitasking</h2>
+      <!-- src: 3_Results.tex:212 -->
+      <p class="slide-text">Finally, manipulators were evolved to perform <!-- src: 3_Results.tex:212 -->five of the six tasks (all but retrieve).</p>
+      <!-- src: 3_Results.tex:216-217 -->
+      <p class="slide-text">Early in evolution, the best design had mastered rotation, flipping and hanging. Later it evolved the ability to pick and hold objects, but got worse at rotating them.</p>
+      <!-- src: 8_Appendix.tex:1129-1133 -->
+      <p class="slide-text">The selected generalist dropped the hammer in <!-- src: 8_Appendix.tex:1133 -->one episode in five, and rotated objects at <!-- src: 8_Appendix.tex:1133 -->a quarter of the rate of the rotate specialist.</p>
+      <!-- src: 3_Results.tex:219-222 -->
+      <div class="slide-callout"><p>The winning design was as good at flipping, picking, and hanging as the specialists, but it rotated objects slowly and dropped the hammer.</p></div>
+    </div>
+  </div>
+  <div class="slide-stage">
+    <div class="slide-media">
+      <img class="render" src="static/images/design_multitask.jpg" alt="The evolved multitasker" loading="lazy">
+      <video class="clip" autoplay muted loop playsinline preload="metadata" poster="static/videos/sim/multitask.jpg"><source src="static/videos/sim/multitask.mp4" type="video/mp4"></video>
+    </div>
+    <!-- src: fig-robot-gallery-generalist.tex:7-14; 3_Results.tex:222 -->
+    <p class="caption"><span class="fig">Multitask</span><strong>An evolved multitasker.</strong> The winning design could flip, pick up, and hang from objects in simulation; it rotated objects slowly.</p>
+  </div>
+</section>
+
+<!-- section: 70_real_world -->
+<section id="real-world" class="slide alt" data-section="real-world" data-num="07" data-name="Real world">
+  <div class="slide-left">
+    <div class="slide-spine"></div>
+    <div class="slide-block">
+      <p class="eyebrow"><span class="num">07</span>Real world</p>
+      <!-- src: 3_Results.tex:86 -->
+      <h2 class="slide-title">Zero-shot in the real world</h2>
+      <!-- src: 3_Results.tex:86-89 -->
+      <p class="slide-text">Deployed zero-shot in the real world, the didactyl robot rotated previously unseen objects weighing from <!-- src: 3_Results.tex:86 -->16 to 687 g at <!-- src: 3_Results.tex:87 -->1.39 rad/s on average, almost twice as fast as the best design previously reported<sup class="cite"><a href="#ref-3">3</a></sup>, which achieved <!-- src: 3_Results.tex:88 -->0.74 rad/s; the tetradactyl robot rotated objects at <!-- src: 3_Results.tex:89 -->1.78 rad/s.</p>
+      <!-- src: 8_Appendix.tex:1142-1148 -->
+      <p class="slide-text">Every joint is driven by a Dynamixel XL330-M288-T servo, running its built-in position controller at <!-- src: 8_Appendix.tex:1148 -->30 Hz.</p>
+      <!-- src: 8_Appendix.tex:747-748 -->
+      <div class="slide-callout"><p>The didactyl design rotated every object and kept all but one rotating for the full <!-- src: 8_Appendix.tex:748 -->30 seconds.</p></div>
+    </div>
+  </div>
+  <div class="slide-stage">
+    <div class="slide-media">
+      <img class="plate-img" src="static/images/fig4_rotators.jpg" alt="Two evolved rotators" loading="lazy">
+    </div>
+    <!-- src: fig-robot-gallery-rot.tex:7-13 -->
+    <p class="caption"><span class="fig">Rotators</span><strong>Two evolved rotators.</strong> The best was essentially didactyl (A-E), with <!-- src: fig-robot-gallery-rot.tex:10 -->two functional appendages and a third, very short vestigial appendage; another highly fit design was tetradactyl (F-J), and all <!-- src: fig-robot-gallery-rot.tex:13 -->four of its appendages were utilized.</p>
+  </div>
+</section>
+<section id="real-world-2" class="slide alt" data-section="real-world" data-num="07" data-name="Real world">
+  <div class="slide-left">
+    <div class="slide-spine"></div>
+    <div class="slide-block">
+      <p class="eyebrow"><span class="num">07</span>Real world</p>
+      <!-- src: 3_Results.tex:63-65 -->
+      <h2 class="slide-title">Compared against the anthropomorphic baseline</h2>
+      <!-- src: 3_Results.tex:93-94 -->
+      <p class="slide-text">Even with a specialized policy trained to rotate a cube, the hand<sup class="cite"><a href="#ref-21">21</a></sup> was no better than the evolved designs at rotating cubes.</p>
+      <!-- src: 8_Appendix.tex:756 -->
+      <p class="slide-text">That policy rotated the cubes and <!-- src: 8_Appendix.tex:756 -->three other objects, at <!-- src: 8_Appendix.tex:756 -->0.51 rad/s on average, a third of the speed of the didactyl design.</p>
+      <!-- src: 3_Results.tex:91-92 -->
+      <div class="slide-callout"><p>After the same training process, the anthropomorphic hand<sup class="cite"><a href="#ref-21">21</a></sup> failed to rotate any of the previously unseen test objects.</p></div>
+    </div>
+  </div>
+  <div class="slide-stage">
+    <div class="slide-media">
+      <video class="clip" autoplay muted loop playsinline preload="metadata" poster="static/videos/real/rotation_2finger.jpg"><source src="static/videos/real/rotation_2finger.mp4" type="video/mp4"></video>
+      <video class="clip" autoplay muted loop playsinline preload="metadata" poster="static/videos/real/leap_baseline.jpg"><source src="static/videos/real/leap_baseline.mp4" type="video/mp4"></video>
+    </div>
+    <!-- src: 3_Results.tex:86, 91-92; z_app_objects_hands.tex:6 -->
+    <p class="caption"><span class="fig">Real</span><strong>The didactyl rotator (left) and the anthropomorphic hand<sup class="cite"><a href="#ref-21">21</a></sup> (right).</strong> Both were deployed zero-shot after the same training process, on previously unseen objects.</p>
+  </div>
+</section>
+<section id="real-world-3" class="slide alt" data-section="real-world" data-num="07" data-name="Real world">
+  <div class="slide-left">
+    <div class="slide-spine"></div>
+    <div class="slide-block">
+      <p class="eyebrow"><span class="num">07</span>Real world</p>
+      <!-- src: fig-robot-gallery-other.tex:5; 3_Results.tex:165 -->
+      <h2 class="slide-title">Pick, hang, retrieve in reality</h2>
+      <!-- src: 3_Results.tex:132-135 -->
+      <p class="slide-text">Across <!-- src: 3_Results.tex:132 -->24 previously unseen objects, the picker succeeded in <!-- src: 3_Results.tex:133 -->eight out of ten attempts on average, and picked up every object at least once except the heaviest, a <!-- src: 3_Results.tex:134 -->687 g salt container.</p>
+      <!-- src: 3_Results.tex:153-155, 164-165; 8_Appendix.tex:852 -->
+      <p class="slide-text">Deployed zero-shot with a finetuned policy, the hanger gripped a stationary bar and hung from it under a <!-- src: 3_Results.tex:155 -->500 g load. The retriever, successful in every training episode, was equally successful in reality.</p>
+    </div>
+  </div>
+  <div class="slide-stage">
+    <div class="slide-media">
+      <video class="clip" autoplay muted loop playsinline preload="metadata" poster="static/videos/real/hang.jpg"><source src="static/videos/real/hang.mp4" type="video/mp4"></video>
+      <video class="clip" autoplay muted loop playsinline preload="metadata" poster="static/videos/real/retrieve.jpg"><source src="static/videos/real/retrieve.mp4" type="video/mp4"></video>
+    </div>
+    <!-- src: 8_Appendix.tex:852; 3_Results.tex:162 -->
+    <p class="caption"><span class="fig">Real</span><strong>The hanger (left) and the retriever (right).</strong> The hanger gripped a stationary bar and hung from it under a <!-- src: 8_Appendix.tex:852 -->500 g load; the retriever reaches into the pipe and pulls the cube out.</p>
+  </div>
+</section>
+
+<!-- section: 80_discussion -->
+<section id="discussion" class="slide wide alt" data-section="discussion" data-num="08" data-name="Discussion">
+  <div class="slide-left">
+    <div class="slide-spine"></div>
+    <div class="slide-block">
+      <p class="eyebrow"><span class="num">08</span>Discussion</p>
+      <!-- src: 4_Discussion.tex:8 ("more dexterous"), :30 ("less evolvable"), :49 ("limitations") -->
+      <h2 class="slide-title">More dexterous, more evolvable, still limited</h2>
+      <!-- src: 4_Discussion.tex:8-13, 19-25 -->
+      <p class="slide-text">The resulting robots were more dexterous than state-of-the-art baselines with a more restrictive design space<sup class="cite"><a href="#ref-3">3</a></sup> or an anthropomorphic layout<sup class="cite"><a href="#ref-21">21</a></sup>. This genetic representation significantly increased evolvability beyond the best known alternative, a VAE<sup class="cite"><a href="#ref-14">14</a></sup>.</p>
+      <!-- src: 4_Discussion.tex:49-55 -->
+      <p class="slide-text">The design space was limited to <!-- src: 4_Discussion.tex:50-52 -->one material, one mode of actuation and proprioception; evolution and learning were conducted entirely in simulation; the behaviors were cognitively simple; and the robots were sessile.</p>
+      <!-- src: 4_Discussion.tex:70-71 -->
+      <div class="slide-callout"><p>The dexterous robots in this paper were not limited by human preconceptions about what a manipulator should look like.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- section: 90_references -->
+<section id="references" class="slide" data-section="references" data-num="09" data-name="References">
+  <div class="slide-left">
+    <div class="slide-spine"></div>
+    <div class="slide-block">
+      <p class="eyebrow"><span class="num">09</span>References</p>
+      <h2 class="slide-title">References</h2>
+    </div>
+  </div>
+  <div class="slide-stage refs-stage">
+    <div class="refs-scroll">
+      <!-- The list is generated at build time from the paper's bibliography, in the
+           order the page cites the works (website/references.py). -->
+      <!-- refs:start -->
+<ol class="refs">
+<li id="ref-1"><span class="ref-num">1</span><span class="ref-text">Shoko Sugasawa, Barbara Webb, and Susan D Healy. Object manipulation without hands. Proceedings of the Royal Society B: Biological Sciences, 2021.</span></li>
+<li id="ref-2"><span class="ref-num">2</span><span class="ref-text">Stefano Nolfi and Dario Floreano. Synthesis of autonomous robots through evolution. Trends in Cognitive Sciences, 2002.</span></li>
+<li id="ref-3"><span class="ref-num">3</span><span class="ref-text">Kehlani Fay, Darin Anthony Djapri, Anya Zorin, James Clinton, Ali El Lahib, Hao Su, Michael T. Tolley, Sha Yi, and Xiaolong Wang. House Of Dextra: Cross-Embodied Co-Design for Dexterous Hands. Proceedings of the International Conference on Learning Representations (ICLR), 2026.</span></li>
+<li id="ref-4"><span class="ref-num">4</span><span class="ref-text">Mohammad Amin Mirzaee, Harsh Gupta, and Wenzhen Yuan. Function-based Parametric Co-Design Optimization of Dexterous Hands. arXiv preprint arXiv:2604.27557, 2026.</span></li>
+<li id="ref-5"><span class="ref-num">5</span><span class="ref-text">Zihan Guo, Muhan Li, Shuzhe Zhang, and Sam Kriegman. Creating manufacturable blueprints for coarse-grained virtual robots. arXiv preprint arXiv:2603.13582, 2026.</span></li>
+<li id="ref-6"><span class="ref-num">6</span><span class="ref-text">Daniel Maturana and Sebastian Scherer. Voxnet: A 3D convolutional neural network for real-time object recognition. Proceedings of the International Conference on Intelligent Robots and Systems (IROS), 2015.</span></li>
+<li id="ref-7"><span class="ref-num">7</span><span class="ref-text">Zhitao Ying, Jiaxuan You, Christopher Morris, Xiang Ren, Will Hamilton, and Jure Leskovec. Hierarchical graph representation learning with differentiable pooling. Advances in Neural Information Processing Systems (NeurIPS), 2018.</span></li>
+<li id="ref-8"><span class="ref-num">8</span><span class="ref-text">Tongzhou Wang and Phillip Isola. Understanding Contrastive Representation Learning through Alignment and Uniformity on the Hypersphere. Proceedings of the International Conference on Machine Learning (ICML), 2020.</span></li>
+<li id="ref-9"><span class="ref-num">9</span><span class="ref-text">Ting Chen, Simon Kornblith, Mohammad Norouzi, and Geoffrey Hinton. A Simple Framework for Contrastive Learning of Visual Representations. Proceedings of the International Conference on Machine Learning (ICML), 2020.</span></li>
+<li id="ref-10"><span class="ref-num">10</span><span class="ref-text">Kathryn E Kirchoff, Travis Maxfield, Alexander Tropsha, and Shawn M Gomez. SALSA: Semantically-aware latent space autoencoder. Proceedings of the AAAI Conference on Artificial Intelligence, 2024.</span></li>
+<li id="ref-11"><span class="ref-num">11</span><span class="ref-text">John Healy and Leland McInnes. Uniform manifold approximation and projection. Nature Reviews Methods Primers, 2024.</span></li>
+<li id="ref-12"><span class="ref-num">12</span><span class="ref-text">Jiaheng Hu, Julian Whitman, and Howie Choset. GLSO: Grammar-guided latent space optimization for sample-efficient robot design automation. Proceedings of the Conference on Robot Learning (CoRL), 2023.</span></li>
+<li id="ref-13"><span class="ref-num">13</span><span class="ref-text">Muhan Li, Lingji Kong, and Sam Kriegman. Generating Freeform Endoskeletal Robots. Proceedings of the International Conference on Learning Representations (ICLR), 2025.</span></li>
+<li id="ref-14"><span class="ref-num">14</span><span class="ref-text">Kevin J Mitchell and Nick Cheney. The genomic code: The genome instantiates a generative model of the organism. Trends in Genetics, 2025.</span></li>
+<li id="ref-15"><span class="ref-num">15</span><span class="ref-text">Chen Yu, David Matthews, Jingxian Wang, Jing Gu, Douglas Blackiston, Michael Rubenstein, and Sam Kriegman. Agile legged locomotion in reconfigurable modular robots. Proceedings of the National Academy of Sciences, 2026.</span></li>
+<li id="ref-16"><span class="ref-num">16</span><span class="ref-text">Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N Gomez, ukasz Kaiser, and Illia Polosukhin. Attention is all you need. Advances in Neural Information Processing Systems (NeurIPS), 2017.</span></li>
+<li id="ref-17"><span class="ref-num">17</span><span class="ref-text">Nikolaus Hansen and Andreas Ostermeier. Completely derandomized self-adaptation in evolution strategies. Evolutionary Computation, 2001.</span></li>
+<li id="ref-18"><span class="ref-num">18</span><span class="ref-text">Nikolaus Hansen. The CMA evolution strategy: A tutorial. arXiv preprint arXiv:1604.00772, 2016.</span></li>
+<li id="ref-19"><span class="ref-num">19</span><span class="ref-text">John Schulman, Filip Wolski, Prafulla Dhariwal, Alec Radford, and Oleg Klimov. Proximal policy optimization algorithms. arXiv preprint arXiv:1707.06347, 2017.</span></li>
+<li id="ref-20"><span class="ref-num">20</span><span class="ref-text">Mayank Mittal, Pascal Roth, James Tigue, Antoine Richard, Octi Zhang, Peter Du, Antonio Serrano-Munoz, Xinjie Yao, René Zurbrügg, Nikita Rudin, et al. Isaac lab: A gpu-accelerated simulation framework for multi-modal robot learning. arXiv preprint arXiv:2511.04831, 2025.</span></li>
+<li id="ref-21"><span class="ref-num">21</span><span class="ref-text">Kenneth Shaw, Ananye Agarwal, and Deepak Pathak. LEAP Hand: Low-Cost, Efficient, and Anthropomorphic Hand for Robot Learning. Robotics: Science and Systems (RSS), 2023.</span></li>
+<li id="ref-22"><span class="ref-num">22</span><span class="ref-text">William E Lorensen and Harvey E Cline. Marching cubes: A high resolution 3D surface construction algorithm. Computer Graphics, 1987.</span></li>
+<li id="ref-23"><span class="ref-num">23</span><span class="ref-text">Marcin Andrychowicz, Bowen Baker, Maciek Chociej, Rafal Jozefowicz, Bob McGrew, Jakub Pachocki, Arthur Petron, Matthias Plappert, Glenn Powell, Alex Ray, et al. Learning dexterous in-hand manipulation. The International Journal of Robotics Research, 2020.</span></li>
+</ol>
+<!-- refs:end -->
+    </div>
+  </div>
+</section>
+  </main>
+  <footer class="footer">
+    <div class="wrap">
+      <p class="eyebrow">Anonymous project page, under review at ICLR 2027</p>
+    </div>
+  </footer>
+  <script src="static/js/index.js" defer></script>
+  <script src="static/js/evolution.js" defer></script>
+<script src="static/js/genome.js" defer></script>
+<script src="static/js/interp.js" defer></script>
+<script src="static/js/latent.js" defer></script>
+<script src="static/js/stages.js" defer></script>
+</body>
+</html>

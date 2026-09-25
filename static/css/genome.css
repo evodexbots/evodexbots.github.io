@@ -1,0 +1,123 @@
+/* Genome panel (section 04, slide 2): a grammar tree of the decoder's steps.
+   Dark glass, thin cyan hairlines, monospace labels, the token colors of
+   Figure 2; nothing filled but the chosen box. Token variables only. */
+
+.genome-panel {
+  --gp-line: color-mix(in srgb, var(--data) 30%, transparent);
+  --gp-line-faint: color-mix(in srgb, var(--data) 16%, transparent);
+  --gp-line-strong: color-mix(in srgb, var(--data) 65%, transparent);
+  --gp-glass: color-mix(in srgb, var(--bg) 55%, transparent);
+  --gp-glow: color-mix(in srgb, var(--data) 45%, transparent);
+  position: relative;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  line-height: 1.5;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--data);
+  background: var(--gp-glass);
+  border: 1px solid var(--gp-line);
+  border-radius: 2px;
+  padding: 0.8rem 1.1rem 0.7rem;
+}
+.gp-label { color: var(--gp-line-strong); margin: 0; }
+.gp-live { color: var(--data); }
+
+/* ---------- header: the genome barcode, the current field, the token count ---------- */
+.gp-head { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 1.2rem; padding-bottom: 0.6rem; border-bottom: 1px solid var(--gp-line); }
+.gp-genome { display: inline-flex; align-items: center; gap: 0.7rem; }
+.gp-barcode { display: block; width: 96px; height: 30px; }
+.gp-bar { fill: var(--data); }
+.gp-base { stroke: var(--gp-line-strong); stroke-width: 1; }
+.gp-field { margin: 0; font-size: 0.74rem; min-height: 1.3em; color: var(--data); text-align: center; }
+.gp-field span + span::before { content: "\00b7"; margin: 0 0.55em; color: var(--gp-line-strong); }
+.gp-field .gp-bin { color: var(--gp-line-strong); }
+
+/* ---------- body: the growing body beside the grammar tree ---------- */
+.gp-body { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 1.2rem; align-items: stretch; padding: 0.9rem 0 0.8rem; }
+.gp-frame { position: relative; aspect-ratio: 1 / 1; border: 1px solid var(--gp-line); background: var(--bg); overflow: hidden; }
+.gp-frame img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.3s ease; }
+.gp-frame img.is-shown { opacity: 1; }
+.gp-frame::before, .gp-frame::after { content: ""; position: absolute; width: 10px; height: 10px; border: 0 solid var(--data); z-index: 1; }
+.gp-frame::before { top: -1px; left: -1px; border-top-width: 1px; border-left-width: 1px; }
+.gp-frame::after { bottom: -1px; right: -1px; border-bottom-width: 1px; border-right-width: 1px; }
+
+/* the chain: one column per decoding step, scrolled so the current step stays in view */
+.gp-chain { position: relative; height: 310px; overflow: hidden; }
+.gp-track { position: absolute; top: 0; bottom: 0; left: 0; transition: transform 0.18s ease; will-change: transform; }
+.gp-track.is-jump { transition: none; }
+.gp-col { position: absolute; top: 0; bottom: 0; display: flex; flex-direction: column; overflow: hidden; }
+.gp-col > * { flex: none; }
+.gp-col-name { color: var(--data); font-size: 0.62rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gp-col-token { color: var(--gp-line-strong); font-size: 0.56rem; margin-bottom: 0.35rem; }
+.gp-boxes { display: flex; flex-direction: column; gap: 3px; }
+.gp-box {
+  height: 16px; padding: 0 5px;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--gp-line); border-radius: 2px;
+  font-size: 0.56rem; letter-spacing: 0.08em; color: var(--gp-line-strong);
+  white-space: nowrap; overflow: hidden;
+}
+.gp-box.is-legal { color: var(--data); border-color: var(--gp-line-strong); }
+.gp-box.is-masked { color: var(--gp-line); border-color: var(--gp-line-faint); text-decoration: line-through; }
+.gp-box.gp-more { border-color: transparent; }
+.gp-gap { height: 4px; }
+.gp-col.is-now .gp-box.is-chosen { background: var(--data); border-color: var(--data); color: var(--bg); box-shadow: 0 0 10px var(--gp-glow); }
+.gp-col.is-past .gp-box.is-chosen { background: var(--gp-line-strong); border-color: var(--gp-line-strong); color: var(--bg); }
+.gp-col.is-past .gp-box:not(.is-chosen), .gp-col.is-next .gp-box { opacity: 0.55; }
+.gp-col.is-next .gp-col-name { color: var(--gp-line-strong); }
+.gp-path { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.gp-link { stroke: var(--gp-line-faint); stroke-width: 1; }
+.gp-link.is-lit { stroke: var(--data); }
+
+/* ---------- token stream: the whole sequence, a playhead, the legend ---------- */
+.gp-stream { padding-top: 0.8rem; border-top: 1px solid var(--gp-line); }
+.gp-tokens { display: block; width: 100%; overflow: visible; }
+.gp-row-line { stroke: var(--gp-line); stroke-width: 1; }
+.gp-playhead { stroke: var(--data); stroke-width: 1; }
+.gp-tick { fill-opacity: 0.22; stroke-opacity: 0.22; cursor: pointer; }
+.gp-tick.is-on { fill-opacity: 1; stroke-opacity: 1; }
+.gp-tick.is-now { filter: drop-shadow(0 0 4px var(--data)); }
+.gp-tick.is-root { fill: var(--tok-root); }
+.gp-tick.is-app { fill: var(--tok-app); }
+.gp-tick.is-app-next { fill: var(--tok-next); }
+.gp-tick.is-app-begin { fill: none; stroke: var(--tok-next); stroke-width: 1; }
+.gp-tick.is-begin { fill: var(--tok-begin); stroke: var(--line-strong); stroke-width: 1; }
+.gp-tick.is-end { fill: var(--tok-end); }
+.gp-legend { list-style: none; margin: 0.6rem 0 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.3rem 1.1rem; font-size: 0.6rem; color: var(--gp-line-strong); }
+.gp-legend li { display: inline-flex; align-items: center; gap: 0.4rem; }
+.gp-key { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
+.gp-key.is-root { background: var(--tok-root); }
+.gp-key.is-app { background: var(--tok-app); }
+.gp-key.is-app-next { background: var(--tok-next); }
+.gp-key.is-app-begin { border: 1px solid var(--tok-next); }
+.gp-key.is-begin { background: var(--tok-begin); border: 1px solid var(--line-strong); }
+.gp-key.is-end { background: var(--tok-end); }
+
+/* ---------- footer: hairline play control and scrub bar ---------- */
+.gp-foot { display: flex; align-items: center; gap: 1rem; margin-top: 0.7rem; padding-top: 0.6rem; border-top: 1px solid var(--gp-line); }
+.gp-play { flex: none; width: 20px; height: 20px; padding: 0; background: none; border: 0; color: var(--data); cursor: pointer; }
+.gp-play svg { display: block; width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 1; stroke-linejoin: round; }
+.gp-icon-pause { display: none; }
+.genome-panel.is-playing .gp-icon-play { display: none; }
+.genome-panel.is-playing .gp-icon-pause { display: block; }
+.gp-scrub { position: relative; flex: 1; height: 24px; cursor: pointer; touch-action: none; outline: none; }
+.gp-scrub-line, .gp-scrub-done { position: absolute; left: 0; top: 50%; height: 1px; }
+.gp-scrub-line { right: 0; background: var(--gp-line); }
+.gp-scrub-done { width: 0; background: var(--data); }
+.gp-scrub-head { position: absolute; top: 50%; left: 0; width: 9px; height: 9px; border: 1px solid var(--data); border-radius: 50%; background: var(--bg); transform: translate(-50%, -50%); }
+.gp-scrub:focus-visible .gp-scrub-head { box-shadow: 0 0 8px var(--gp-glow); }
+
+/* ---------- slide 04-2: the panel and its caption are the whole content of the stage box ---------- */
+.gp-figure { margin: 0; width: 100%; min-width: 0; }
+.gp-figure .caption { margin: 1rem 0 0; }
+
+/* ---------- phones: one column ---------- */
+@media (max-width: 900px) {
+  .genome-panel { padding: 0.9rem 0.9rem 0.8rem; }
+  .gp-head { grid-template-columns: 1fr; gap: 0.3rem; }
+  .gp-field { text-align: left; font-size: 0.7rem; }
+  .gp-body { grid-template-columns: 1fr; gap: 1rem; }
+  .gp-chain { height: 310px; }
+  .gp-legend { justify-content: flex-start; }
+}

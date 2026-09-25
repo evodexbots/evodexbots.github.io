@@ -1,0 +1,12 @@
+/* Results slides: a square design still beside a 16:9 clip inside the stage.
+   The chrome's .slide-media sizes one item; two items overflow it. With the 12 px gap
+   taken out first, a square at 9/25 of the rest and a 16:9 clip at 16/25 share one
+   height exactly: h = (W - gap) * 9 / 25, still width h, clip width 16h/9. */
+.slide[data-section="results"] .slide-media { align-items: center; }
+.slide[data-section="results"] .slide-media > .render { flex: 0 0 calc((100% - 12px) * 0.36); width: calc((100% - 12px) * 0.36); height: auto; }
+.slide[data-section="results"] .slide-media > .clip { flex: 0 0 calc((100% - 12px) * 0.64); width: calc((100% - 12px) * 0.64); min-width: 0; height: auto; }
+
+@media (max-width: 900px) {
+  /* Phones: the same row, the same split, so the slide stays one screen tall. */
+  .slide[data-section="results"] .slide-media > .render { flex-basis: calc((100% - 12px) * 0.36); width: calc((100% - 12px) * 0.36); }
+}

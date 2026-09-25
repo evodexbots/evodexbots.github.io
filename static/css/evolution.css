@@ -1,0 +1,7 @@
+/* Evolution panel (section 05): one CMA-ES campaign record drawn on canvas by
+   evolution.js, on the page's black. Tokens only; hairlines and mono labels are
+   drawn by the script from the same tokens. */
+.slide-media > .ev { flex: 0 1 auto; }
+.ev { position: relative; width: 100%; aspect-ratio: 16 / 9; max-height: 62vh; overflow: hidden; }
+.ev canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+@media (max-width: 900px) { .ev { aspect-ratio: 3 / 4; max-height: none; } }
