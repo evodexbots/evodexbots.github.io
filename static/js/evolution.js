@@ -75,7 +75,7 @@
     ctx.fillStyle = rgba(COLOR.muted, 1);
     ctx.textBaseline = "top";
     ctx.textAlign = "left";
-    ctx.fillText("LATENT SPACE", box.x + 10 * dpr, box.y + 9 * dpr);
+    ctx.fillText("LATENT SPACE \u00b7 BEST OF FIVE TRIALS", box.x + 10 * dpr, box.y + 9 * dpr);
     var rad = DOT * dpr, bestIndex = -1, bestValue = -Infinity;
     // rejected designs first, dim; then measured designs, brighter the fitter
     ctx.beginPath();

@@ -76,7 +76,7 @@ p.narrow { max-width: 34rem; }
 .menu a span { color: var(--accent); font-size: 0.9rem; letter-spacing: 0.24em; margin-right: 1.2rem; font-weight: 400; }
 
 /* ---------- hero: text left third, subject right two thirds, no overlap ---------- */
-.hero { position: relative; height: 100vh; min-height: 720px; overflow: hidden; background: var(--bg); }
+.hero { position: relative; height: 100vh; overflow: hidden; background: var(--bg); }
 .hero-stage {
   position: absolute; top: 8%; bottom: 12%; right: 4%; width: 56%;
   /* the loop's exploded view reaches farther out than the still, so the solid part is wider */
@@ -189,7 +189,7 @@ main {
 main::-webkit-scrollbar { display: none; }
 main > section { flex: 0 0 100vw; width: 100vw; height: 100vh; scroll-snap-align: start; scroll-snap-stop: always; }
 .footer { display: none; }
-.slide { position: relative; height: 100vh; min-height: 720px; overflow: hidden; background: var(--bg); }
+.slide { position: relative; height: 100vh; overflow: hidden; background: var(--bg); }
 .slide.alt { background: var(--bg-2); }
 .slide-left { position: absolute; left: 0; top: 0; bottom: 0; width: 36%; display: flex; align-items: center; }
 .slide-spine { position: absolute; left: var(--x-edge); top: 30%; bottom: 22%; width: 1px; background: var(--line-strong); }
@@ -203,7 +203,8 @@ main > section { flex: 0 0 100vw; width: 100vw; height: 100vh; scroll-snap-align
 .slide-callout { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 1rem 0; margin: 1.4rem 0 0; max-width: 26rem; }
 .slide-callout p { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 1.15rem; line-height: 1.4; color: var(--text); }
 /* the media box is the hero stage; one image, clip or row per slide, the caption under it */
-.slide-stage { position: absolute; top: 9%; bottom: 15%; right: 4%; width: 56%; display: flex; flex-direction: column; justify-content: center; }
+/* media and caption centre as a group; the fit script shrinks a group that is taller than the stage */
+.slide-stage { position: absolute; top: max(9%, 104px); bottom: 15%; right: 4%; width: 56%; display: flex; flex-direction: column; justify-content: center; }
 /* media and caption travel as one group, centred on the text column's centre line */
 .slide-media { flex: 0 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center; gap: 12px; }
 .slide-media > img, .slide-media > video { max-width: 100%; max-height: 62vh; width: auto; height: auto; min-width: 0; flex: 0 1 auto; display: block; border-radius: 2px; object-fit: contain; }
@@ -226,6 +227,35 @@ main > section { flex: 0 0 100vw; width: 100vw; height: 100vh; scroll-snap-align
 .slide.wide .slide-callout { max-width: 40rem; padding: 1.4rem 0; }
 .slide.wide .slide-callout p { font-size: 1.5rem; line-height: 1.4; }
 
+/* ---------- desktop: the text columns stay clear of the bars; centred when the text fits,
+   top-aligned and scrollable inside the column when it does not ---------- */
+@media (min-width: 901px) {
+  .hero-left, .slide-left { top: 96px; bottom: 96px; align-items: stretch; overflow-y: auto; scrollbar-width: none; }
+  .hero-left::-webkit-scrollbar, .slide-left::-webkit-scrollbar { display: none; }
+  .hero-block, .slide-block { margin: auto 0; }
+  .hero-spine, .slide-spine { top: 12%; bottom: 12%; }
+}
+
+/* ---------- short desktop viewports (laptops at high scaling): tighter vertical rhythm ---------- */
+@media (min-width: 901px) and (max-height: 860px) {
+  .hero-left, .slide-left { top: 64px; bottom: 64px; }
+  .topbar { padding-top: 14px; }
+  .hero-spine, .slide-spine { top: 12%; bottom: 12%; }
+  .hero-title { font-size: clamp(1.5rem, 1.9vw, 2.2rem); margin-bottom: 1rem; }
+  .hero-line { margin-bottom: 0.8rem; }
+  .hero-label { margin-bottom: 0.5rem; }
+  .hero-text { font-size: 0.74rem; line-height: 1.45; margin-bottom: 0.6rem; }
+  .hero-stage { top: 9%; bottom: 14%; }
+  .hero-foot, .slide-foot { padding-bottom: 1rem; }
+  .slide-title { font-size: clamp(1.3rem, 1.7vw, 2rem); margin-bottom: 0.9rem; }
+  .slide-text { font-size: 0.86rem; line-height: 1.5; margin-bottom: 0.6rem; }
+  .slide-callout { padding: 0.7rem 0; margin-top: 0.9rem; }
+  .slide-callout p { font-size: 1rem; }
+  .slide-stage { top: max(9%, 92px); bottom: 14%; }
+  .slide-stage .caption { font-size: 0.8rem; margin-top: 0.7rem; }
+  .slide-media > img, .slide-media > video { max-height: 56vh; }
+}
+
 /* ---------- footer ---------- */
 .footer { padding: 4rem 0 3rem; border-top: 1px solid var(--line); }
 
@@ -246,7 +276,7 @@ body.is-capture .fade-up { opacity: 1; transform: none; transition: none; }
 /* ---------- phones ---------- */
 @media (max-width: 900px) {
   .grid-2, .grid-2.media-left { grid-template-columns: 1fr; gap: 2rem; }
-  .topbar { grid-template-columns: 1fr auto; padding: 18px var(--gutter) 0 calc(var(--gutter) + 2.2rem); }
+  .topbar { position: static; grid-template-columns: 1fr auto; padding: 18px var(--gutter) 0 calc(var(--gutter) + 2.2rem); }
   .menu-toggle { grid-column: 2; }
   .topbar-center { display: none; }
   .hero { height: auto; min-height: 0; padding-bottom: 6rem; }
@@ -274,9 +304,10 @@ body.is-capture .fade-up { opacity: 1; transform: none; transition: none; }
   main > section { width: auto; height: auto; }
   .footer { display: block; }
   .slide { height: auto; min-height: 0; display: flex; flex-direction: column; padding-bottom: 1rem; }
-  .slide-stage { position: relative; order: 0; width: 100%; top: auto; bottom: auto; right: auto; padding: 2rem var(--gutter) 0; }
+  /* phones: the text first, then the media, then the bar */
+  .slide-stage { position: relative; order: 1; width: 100%; top: auto; bottom: auto; right: auto; padding: 1rem var(--gutter) 0; }
   .slide-media > img, .slide-media > video { max-height: 60vh; }
-  .slide-left { position: relative; order: 1; width: 100%; padding: 2rem 0 0 var(--gutter); }
+  .slide-left { position: relative; order: 0; width: 100%; padding: 2.5rem 0 0 var(--gutter); }
   .slide-block { padding: 0 var(--gutter) 0 2.2rem; }
   .slide-spine { left: calc(var(--gutter) + 0.4rem); top: 0; bottom: 0; }
   .slide-foot { position: relative; order: 2; }

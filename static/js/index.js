@@ -126,21 +126,77 @@
     slides.forEach(function (s, i) { if (s.offsetTop <= y) { index = i; } });
     goTo(index + step);
   });
-  var wheelLock = 0;
+  // Wheel input: a mouse notch or a trackpad swipe moves one slide. A new swipe is told
+  // from the inertia tail of the previous one by acceleration: the recent deltas grow
+  // instead of decaying. After a move, input is ignored for LOCK_MS so one swipe cannot
+  // move twice. Sideways swipes are left to the browser's own scroll snapping.
+  var LOCK_MS = 700;
+  var GAP_MS = 400;   // silence longer than this starts a fresh gesture
+  var WINDOW = 10;    // deltas compared for acceleration
+  var history = [];
+  var lastEvent = 0, lastMove = 0, target = null;
+  var average = function (list) {
+    if (!list.length) { return 0; }
+    var sum = 0;
+    list.forEach(function (v) { sum += v; });
+    return sum / list.length;
+  };
   main.addEventListener("wheel", function (e) {
     if (!isDeck()) { return; }
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) { return; }
     var list = e.target.closest ? e.target.closest(".refs-scroll") : null;
     if (list) {
       var atTop = list.scrollTop <= 0 && e.deltaY < 0;
       var atEnd = list.scrollTop + list.clientHeight >= list.scrollHeight - 1 && e.deltaY > 0;
       if (!atTop && !atEnd) { return; }
     }
-    var delta = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
-    if (Math.abs(delta) < 4) { return; }
     e.preventDefault();
     var now = Date.now();
-    if (now - wheelLock < 700) { return; }
-    wheelLock = now;
-    goTo(current() + (delta > 0 ? 1 : -1));
+    if (now - lastEvent > GAP_MS) { history = []; }
+    lastEvent = now;
+    var size = Math.abs(e.deltaY);
+    history.push(size);
+    if (history.length > WINDOW * 8) { history.shift(); }
+    var recent = history.slice(-WINDOW);
+    var before = history.slice(0, -WINDOW);
+    var isAccelerating = before.length === 0 || average(recent) >= average(before);
+    if (size < 4 || !isAccelerating || now - lastMove < LOCK_MS) { return; }
+    var isStale = target === null || now - lastMove > 1500;
+    lastMove = now;
+    history = [];
+    if (isStale) { target = current(); }
+    target = Math.min(slides.length - 1, Math.max(0, target + (e.deltaY > 0 ? 1 : -1)));
+    goTo(target);
   }, { passive: false });
+  main.addEventListener("scrollend", function () { target = null; });
+})();
+
+// Fit the media of every slide into its stage: when the media and the caption are taller than
+// the stage (short or squarish viewports), the media is zoomed down so nothing overlaps the bars.
+(function () {
+  var main = document.querySelector("main");
+  if (!main) { return; }
+  var isDeck = function () { return getComputedStyle(main).display === "flex"; };
+  var stages = Array.prototype.slice.call(document.querySelectorAll(".slide-stage"));
+  var fit = function () {
+    stages.forEach(function (stage) {
+      var media = stage.querySelector(".slide-media, .gp-figure, .refs-scroll");
+      if (!media) { return; }
+      if (!isDeck()) { media.style.zoom = ""; return; }
+      var caption = stage.querySelector(":scope > .caption, :scope > .lp-readout");
+      media.style.zoom = "";
+      var natural = media.offsetHeight;
+      var room = stage.clientHeight - (caption ? caption.offsetHeight + 14 : 0);
+      if (natural > room && natural > 0) { media.style.zoom = String(Math.max(0.4, room / natural)); }
+    });
+  };
+  var timer = null;
+  var schedule = function () { clearTimeout(timer); timer = setTimeout(fit, 60); };
+  window.addEventListener("resize", schedule);
+  window.addEventListener("load", schedule);
+  if ("ResizeObserver" in window) {
+    var observer = new ResizeObserver(schedule);
+    stages.forEach(function (stage) { observer.observe(stage); });
+  }
+  schedule();
 })();
