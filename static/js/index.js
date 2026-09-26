@@ -40,7 +40,10 @@
     toggle.setAttribute("aria-expanded", isOpen ? "false" : "true");
   });
   menu.querySelectorAll("a").forEach(function (a) { a.addEventListener("click", close); });
+  menu.addEventListener("click", function (e) { if (e.target === menu || e.target.classList.contains("menu-list")) { close(); } });
   document.addEventListener("keydown", function (e) { if (e.key === "Escape") { close(); } });
+  // index.html?menu=1 opens the menu on load, for layout checks
+  if (new URLSearchParams(window.location.search).get("menu") === "1") { menu.hidden = false; toggle.setAttribute("aria-expanded", "true"); }
 })();
 // Layout debug readout for headless checks: index.html?debug=1
 (function () {

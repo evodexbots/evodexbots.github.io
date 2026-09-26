@@ -139,7 +139,8 @@
       var canvas = panel.querySelector("canvas");
       canvas.addEventListener("mousemove", function (e) {
         var box = canvas.getBoundingClientRect();
-        var hit = nearest(canvas, data.arms[k], e.clientX - box.left, e.clientY - box.top);
+        var zoom = canvas.offsetWidth ? box.width / canvas.offsetWidth : 1;
+        var hit = nearest(canvas, data.arms[k], (e.clientX - box.left) / zoom, (e.clientY - box.top) / zoom);
         if (hit !== hover) {
           hover = hit;
           if (readout) { readout.textContent = hit >= 0 ? data.topology_names[data.topology[hit]] : ""; }

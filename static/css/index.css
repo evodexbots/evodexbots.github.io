@@ -68,8 +68,16 @@ p.narrow { max-width: 34rem; }
 .menu {
   position: fixed; inset: 0; z-index: 19;
   background: var(--bg);
-  display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 1.4rem;
+  /* the list starts below the top bar and scrolls when the screen is short */
+  box-sizing: border-box; padding: 130px var(--gutter) 40px; overflow-y: auto;
+  display: flex; flex-direction: column; justify-content: flex-start; align-items: center;
   font-family: var(--font-display); font-weight: 300; font-size: 2rem; letter-spacing: 0.16em; text-transform: uppercase;
+}
+/* centred when the list fits, top-aligned below the bar when it does not */
+.menu-list { display: flex; flex-direction: column; align-items: center; gap: 1.4rem; margin: auto 0; }
+@media (max-height: 760px) {
+  .menu { padding-top: 104px; font-size: 1.25rem; }
+  .menu-list { gap: 0.45rem; }
 }
 .menu[hidden] { display: none; }
 .menu a { color: var(--text); text-decoration: none; }
@@ -276,7 +284,9 @@ body.is-capture .fade-up { opacity: 1; transform: none; transition: none; }
 /* ---------- phones ---------- */
 @media (max-width: 900px) {
   .grid-2, .grid-2.media-left { grid-template-columns: 1fr; gap: 2rem; }
-  .topbar { position: static; grid-template-columns: 1fr auto; padding: 18px var(--gutter) 0 calc(var(--gutter) + 2.2rem); }
+  .topbar { position: relative; z-index: 20; grid-template-columns: 1fr auto; padding: 18px var(--gutter) 0 calc(var(--gutter) + 2.2rem); }
+  .menu { padding-top: 90px; font-size: 1.5rem; }
+  .menu-list { gap: 1rem; }
   .menu-toggle { grid-column: 2; }
   .topbar-center { display: none; }
   .hero { height: auto; min-height: 0; padding-bottom: 6rem; }

@@ -209,11 +209,19 @@
   function drawLinks() {
     clear(path);
     var origin = track.getBoundingClientRect();
+    // The page may zoom the whole panel to fit its stage; client rects are in zoomed
+    // pixels while the SVG draws in the panel's own pixels, so they are scaled back.
+    var scale = track.offsetWidth ? origin.width / track.offsetWidth : 1;
+    if (!(scale > 0)) { scale = 1; }
     var previous = null;
     links = columns.map(function (column) {
       if (!column.chosen) { previous = null; return null; }
       var rect = column.chosen.getBoundingClientRect();
-      var point = { x1: rect.left - origin.left, x2: rect.right - origin.left, y: (rect.top + rect.bottom) / 2 - origin.top };
+      var point = {
+        x1: (rect.left - origin.left) / scale,
+        x2: (rect.right - origin.left) / scale,
+        y: ((rect.top + rect.bottom) / 2 - origin.top) / scale
+      };
       var link = null;
       if (previous) {
         link = svgElement("line", { class: "gp-link", x1: previous.x2, y1: previous.y, x2: point.x1, y2: point.y });
