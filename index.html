@@ -8,14 +8,14 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600&family=IBM+Plex+Sans:wght@200;300;400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="static/css/tokens.css">
-  <link rel="stylesheet" href="static/css/index.css">
-  <link rel="stylesheet" href="static/css/evolution.css">
-<link rel="stylesheet" href="static/css/genome.css">
-<link rel="stylesheet" href="static/css/interp.css">
-<link rel="stylesheet" href="static/css/latent.css">
-<link rel="stylesheet" href="static/css/results.css">
-<link rel="stylesheet" href="static/css/stages.css">
+  <link rel="stylesheet" href="static/css/tokens.css?v=4458adeb">
+  <link rel="stylesheet" href="static/css/index.css?v=d98da6b3">
+  <link rel="stylesheet" href="static/css/evolution.css?v=52c374f5">
+<link rel="stylesheet" href="static/css/genome.css?v=ac742366">
+<link rel="stylesheet" href="static/css/interp.css?v=c618d85c">
+<link rel="stylesheet" href="static/css/latent.css?v=42535324">
+<link rel="stylesheet" href="static/css/results.css?v=f227fdd8">
+<link rel="stylesheet" href="static/css/stages.css?v=e9b96590">
 </head>
 <body>
   <header class="topbar">
@@ -123,8 +123,8 @@
   </div>
   <div class="slide-stage">
     <div class="slide-media grid-2x2">
-      <div class="stage-panel stage-embed" data-src="static/data/latent_probe.json" role="img" aria-label="Embed: the latent genome of the probe hands on a sphere, similar body plans close together"><canvas></canvas></div>
-      <div class="stage-panel stage-evolve" data-src="static/data/evolution.json" role="img" aria-label="Evolve: the sampled genotypes generation by generation, the mean path and the best design"><canvas></canvas></div>
+      <div class="stage-panel stage-embed" data-src="static/data/latent_probe.json?v=9eef060f" role="img" aria-label="Embed: the latent genome of the probe hands on a sphere, similar body plans close together"><canvas></canvas></div>
+      <div class="stage-panel stage-evolve" data-src="static/data/evolution.json?v=42cdc880" role="img" aria-label="Evolve: the sampled genotypes generation by generation, the mean path and the best design"><canvas></canvas></div>
       <img src="static/images/stage_train.jpg" alt="Train: the didactyl rotator trained in simulation" loading="lazy">
       <img src="static/images/stage_deploy.jpg" alt="Deploy: the printed rotator tested in the real world" loading="lazy">
     </div>
@@ -148,7 +148,7 @@
     <div class="slide-media">
       <!-- The topology probe of the latent ablation, drawn from the handoff's UMAP embeddings
            (materials/latent). Labels are the figure's own; latent.js draws it, latent.css styles it. -->
-      <div class="lp" data-src="static/data/latent_probe.json">
+      <div class="lp" data-src="static/data/latent_probe.json?v=9eef060f">
         <div class="lp-panel"><canvas></canvas><span class="lp-label"><b>A</b>Ours</span><p class="lp-key lp-key-topologies"></p></div>
         <div class="lp-panel"><canvas></canvas><span class="lp-label"><b>B</b>w/o z &isin; S<sup>31</sup></span><p class="lp-key"><span><i class="lp-dot"></i>canonical</span><span><i class="lp-ring"></i>rotated</span><span><i class="lp-line"></i>same design</span></p></div>
         <div class="lp-panel"><canvas></canvas><span class="lp-label"><b>C</b>w/o L<sub>con</sub></span></div>
@@ -300,7 +300,7 @@
       <!-- One CMA-ES campaign record (materials/evolution, from the lab's cma_trajectory.npz):
            the samples on the plane of their first two principal components, the distribution
            mean, and the best fitness so far; evolution.js draws it, evolution.css sizes it. -->
-      <div class="ev" data-src="static/data/evolution.json"><canvas></canvas></div>
+      <div class="ev" data-src="static/data/evolution.json?v=42cdc880"><canvas></canvas></div>
     </div>
     <p class="caption"><span class="fig">Evolution</span><strong>The evolution of rotators.</strong> The best of the five evolutionary trials of the rotate task, population size 32 over the first 75 generations: every sampled genotype in the latent space, the distribution mean moving across it, and the peak fitness so far during evolution against the anthropomorphic baseline<sup class="cite"><a href="#ref-21">21</a></sup> and the prior state-of-the-art<sup class="cite"><a href="#ref-3">3</a></sup>.</p>
   </div>
@@ -586,11 +586,11 @@
       <p class="eyebrow">Anonymous project page, under review at ICLR 2027</p>
     </div>
   </footer>
-  <script src="static/js/index.js" defer></script>
-  <script src="static/js/evolution.js" defer></script>
-<script src="static/js/genome.js" defer></script>
-<script src="static/js/interp.js" defer></script>
-<script src="static/js/latent.js" defer></script>
-<script src="static/js/stages.js" defer></script>
+  <script src="static/js/index.js?v=9e54217a" defer></script>
+  <script src="static/js/evolution.js?v=42af1404" defer></script>
+<script src="static/js/genome.js?v=c5805099" defer></script>
+<script src="static/js/interp.js?v=4faa86a1" defer></script>
+<script src="static/js/latent.js?v=66f4505d" defer></script>
+<script src="static/js/stages.js?v=bb58577b" defer></script>
 </body>
 </html>
